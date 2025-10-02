@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Download, Play, Clock, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { Download, Play, Clock, CheckCircle2, XCircle, Loader2, FileText, Image as ImageIcon } from "lucide-react";
 
 type JobStatus = "pending" | "processing" | "finished" | "failed";
 
@@ -15,7 +15,13 @@ interface Job {
   status: JobStatus;
   progress?: number;
   createdAt: string;
-  clips?: Array<{ id: number; thumbnail: string; duration: string }>;
+  clips?: Array<{ 
+    id: number; 
+    thumbnail: string; 
+    duration: string;
+    hasVideo: boolean;
+    hasCaptions: boolean;
+  }>;
 }
 
 const mockJobs: Job[] = [
@@ -27,9 +33,10 @@ const mockJobs: Job[] = [
     status: "finished",
     createdAt: "2 hours ago",
     clips: [
-      { id: 1, thumbnail: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=400&h=300&fit=crop", duration: "0:45" },
-      { id: 2, thumbnail: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=400&h=300&fit=crop", duration: "1:20" },
-      { id: 3, thumbnail: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400&h=300&fit=crop", duration: "0:58" },
+      { id: 1, thumbnail: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=400&h=300&fit=crop", duration: "0:45", hasVideo: true, hasCaptions: true },
+      { id: 2, thumbnail: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=400&h=300&fit=crop", duration: "1:20", hasVideo: true, hasCaptions: true },
+      { id: 3, thumbnail: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400&h=300&fit=crop", duration: "0:58", hasVideo: true, hasCaptions: false },
+      { id: 4, thumbnail: "https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=400&h=300&fit=crop", duration: "1:05", hasVideo: true, hasCaptions: true },
     ],
   },
   {
@@ -124,24 +131,52 @@ export default function Jobs() {
                             alt={`Clip ${clip.id}`}
                             className="w-full aspect-video object-cover"
                           />
-                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                            <Button size="sm" variant="secondary" className="h-8 w-8 p-0">
-                              <Play className="h-4 w-4" />
-                            </Button>
-                            <Button size="sm" variant="secondary" className="h-8 w-8 p-0">
-                              <Download className="h-4 w-4" />
-                            </Button>
+                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-2">
+                            <div className="flex gap-2">
+                              <Button size="sm" variant="secondary" className="h-8 w-8 p-0" title="Preview">
+                                <Play className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            <div className="flex gap-1 w-full">
+                              <Button size="sm" variant="secondary" className="flex-1 text-xs px-2 h-7" title="Download Video">
+                                <Download className="h-3 w-3 mr-1" />
+                                Video
+                              </Button>
+                              <Button size="sm" variant="secondary" className="flex-1 text-xs px-2 h-7" title="Download Thumbnail">
+                                <ImageIcon className="h-3 w-3 mr-1" />
+                                Thumb
+                              </Button>
+                            </div>
+                            {clip.hasCaptions && (
+                              <Button size="sm" variant="secondary" className="w-full text-xs px-2 h-7" title="Download Captions">
+                                <FileText className="h-3 w-3 mr-1" />
+                                Captions
+                              </Button>
+                            )}
                           </div>
                           <div className="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-1 rounded">
                             {clip.duration}
                           </div>
+                          {clip.hasCaptions && (
+                            <div className="absolute top-2 left-2 bg-primary/90 text-primary-foreground text-xs px-2 py-1 rounded">
+                              CC
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
-                    <div className="flex justify-end">
+                    <div className="flex justify-end gap-2">
                       <Button variant="outline">
                         <Download className="h-4 w-4 mr-2" />
-                        Download All
+                        All Videos
+                      </Button>
+                      <Button variant="outline">
+                        <ImageIcon className="h-4 w-4 mr-2" />
+                        All Thumbnails
+                      </Button>
+                      <Button variant="outline">
+                        <FileText className="h-4 w-4 mr-2" />
+                        All Captions
                       </Button>
                     </div>
                   </div>

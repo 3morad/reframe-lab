@@ -7,19 +7,26 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Youtube, Video, Cloud, Upload as UploadIcon } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Youtube, Video, Cloud, Upload as UploadIcon, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Upload() {
   const [workflow, setWorkflow] = useState("long-to-short");
   const [clipCount, setClipCount] = useState([5]);
+  const [clipLength, setClipLength] = useState("30");
+  const [aiMode, setAiMode] = useState("none");
+  const [customPrompt, setCustomPrompt] = useState("");
   const [templates, setTemplates] = useState({
     logo: false,
     intro: false,
+    cover: false,
     captions: true,
     retention: false,
     profile: false,
     splitScreen: false,
+    border: false,
   });
   const { toast } = useToast();
 
@@ -134,32 +141,115 @@ export default function Upload() {
           </CardContent>
         </Card>
 
-        {/* Clip Count */}
+        {/* Clip Settings */}
         <Card>
           <CardHeader>
-            <CardTitle>3. Number of Clips</CardTitle>
-            <CardDescription>How many clips should we generate? ({clipCount[0]} clips)</CardDescription>
+            <CardTitle>3. Clip Settings</CardTitle>
+            <CardDescription>Configure your clip generation preferences</CardDescription>
           </CardHeader>
-          <CardContent>
-            <Slider
-              value={clipCount}
-              onValueChange={setClipCount}
-              max={100}
-              min={1}
-              step={1}
-              className="w-full"
-            />
-            <div className="flex justify-between text-xs text-muted-foreground mt-2">
-              <span>1 clip</span>
-              <span>100 clips</span>
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <Label>Number of Clips ({clipCount[0]} clips)</Label>
+              <Slider
+                value={clipCount}
+                onValueChange={setClipCount}
+                max={1000}
+                min={1}
+                step={1}
+                className="w-full"
+              />
+              <div className="flex justify-between text-xs text-muted-foreground mt-2">
+                <span>1 clip</span>
+                <span>1000 clips</span>
+              </div>
             </div>
+
+            <div className="space-y-2">
+              <Label>Clip Length Preset</Label>
+              <RadioGroup value={clipLength} onValueChange={setClipLength} className="grid grid-cols-3 gap-4">
+                <div>
+                  <RadioGroupItem value="15" id="15s" className="peer sr-only" />
+                  <Label
+                    htmlFor="15s"
+                    className="flex flex-col items-center justify-center rounded-lg border-2 border-muted bg-card p-4 hover:bg-muted cursor-pointer peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5"
+                  >
+                    <span className="text-2xl font-bold">15s</span>
+                    <span className="text-xs text-muted-foreground mt-1">Short</span>
+                  </Label>
+                </div>
+                <div>
+                  <RadioGroupItem value="30" id="30s" className="peer sr-only" />
+                  <Label
+                    htmlFor="30s"
+                    className="flex flex-col items-center justify-center rounded-lg border-2 border-muted bg-card p-4 hover:bg-muted cursor-pointer peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5"
+                  >
+                    <span className="text-2xl font-bold">30s</span>
+                    <span className="text-xs text-muted-foreground mt-1">Medium</span>
+                  </Label>
+                </div>
+                <div>
+                  <RadioGroupItem value="60" id="60s" className="peer sr-only" />
+                  <Label
+                    htmlFor="60s"
+                    className="flex flex-col items-center justify-center rounded-lg border-2 border-muted bg-card p-4 hover:bg-muted cursor-pointer peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5"
+                  >
+                    <span className="text-2xl font-bold">60s</span>
+                    <span className="text-xs text-muted-foreground mt-1">Long</span>
+                  </Label>
+                </div>
+              </RadioGroup>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* AI Options */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-primary" />
+              <CardTitle>4. AI-Powered Features</CardTitle>
+            </div>
+            <CardDescription>Let AI intelligently select the best moments</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label>AI Clipping Mode</Label>
+              <Select value={aiMode} onValueChange={setAiMode}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select AI mode" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None (Manual)</SelectItem>
+                  <SelectItem value="podcast">Podcast Clipping</SelectItem>
+                  <SelectItem value="vlog">Vlog Clipping</SelectItem>
+                  <SelectItem value="streamer">Streamer Highlights</SelectItem>
+                  <SelectItem value="ugc">AI UGC Generation</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {aiMode !== "none" && (
+              <div className="space-y-2">
+                <Label htmlFor="custom-prompt">Custom AI Prompt (Optional)</Label>
+                <Textarea
+                  id="custom-prompt"
+                  placeholder="e.g., Focus on moments with high energy and laughter..."
+                  value={customPrompt}
+                  onChange={(e) => setCustomPrompt(e.target.value)}
+                  rows={3}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Customize how AI selects clips from your video
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
         {/* Template Settings */}
         <Card>
           <CardHeader>
-            <CardTitle>4. Template Style</CardTitle>
+            <CardTitle>5. Template Style</CardTitle>
             <CardDescription>Customize your video output with these options</CardDescription>
           </CardHeader>
           <CardContent>
@@ -171,7 +261,7 @@ export default function Upload() {
                   onCheckedChange={(checked) => setTemplates({ ...templates, logo: checked as boolean })}
                 />
                 <Label htmlFor="logo" className="text-sm font-medium cursor-pointer">
-                  Add Logo
+                  Logo/Watermark
                 </Label>
               </div>
               <div className="flex items-center space-x-3">
@@ -182,6 +272,16 @@ export default function Upload() {
                 />
                 <Label htmlFor="intro" className="text-sm font-medium cursor-pointer">
                   Intro/Outro
+                </Label>
+              </div>
+              <div className="flex items-center space-x-3">
+                <Checkbox
+                  id="cover"
+                  checked={templates.cover}
+                  onCheckedChange={(checked) => setTemplates({ ...templates, cover: checked as boolean })}
+                />
+                <Label htmlFor="cover" className="text-sm font-medium cursor-pointer">
+                  Cover/Thumbnail
                 </Label>
               </div>
               <div className="flex items-center space-x-3">
@@ -222,6 +322,16 @@ export default function Upload() {
                 />
                 <Label htmlFor="splitScreen" className="text-sm font-medium cursor-pointer">
                   Split-Screen
+                </Label>
+              </div>
+              <div className="flex items-center space-x-3">
+                <Checkbox
+                  id="border"
+                  checked={templates.border}
+                  onCheckedChange={(checked) => setTemplates({ ...templates, border: checked as boolean })}
+                />
+                <Label htmlFor="border" className="text-sm font-medium cursor-pointer">
+                  Custom Border/BG
                 </Label>
               </div>
             </div>
